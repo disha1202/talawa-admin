@@ -442,7 +442,6 @@ export const ORGANIZATIONS_MEMBER_CONNECTION_LIST = gql`
     $orgId: ID!
     $firstName_contains: String
     $lastName_contains: String
-    $event_title_contains: String
     $first: Int
     $skip: Int
   ) {
@@ -453,7 +452,6 @@ export const ORGANIZATIONS_MEMBER_CONNECTION_LIST = gql`
       where: {
         firstName_contains: $firstName_contains
         lastName_contains: $lastName_contains
-        event_title_contains: $event_title_contains
       }
     ) {
       edges {
