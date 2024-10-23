@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 import { Button, Dropdown } from 'react-bootstrap';
-import { SearchOutlined, Search } from '@mui/icons-material';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import ContactCard from 'components/UserPortal/ContactCard/ContactCard';
 import ChatRoom from 'components/UserPortal/ChatRoom/ChatRoom';
@@ -13,6 +12,7 @@ import UserSidebar from 'components/UserPortal/UserSidebar/UserSidebar';
 import { CHATS_LIST } from 'GraphQl/Queries/PlugInQueries';
 import CreateGroupChat from '../../../components/UserPortal/CreateGroupChat/CreateGroupChat';
 import CreateDirectChat from 'components/UserPortal/CreateDirectChat/CreateDirectChat';
+import { MARK_CHAT_MESSAGES_AS_READ } from 'GraphQl/Mutations/OrganizationMutations';
 
 interface InterfaceContactCardProps {
   id: string;
@@ -21,6 +21,8 @@ interface InterfaceContactCardProps {
   selectedContact: string;
   setSelectedContact: React.Dispatch<React.SetStateAction<string>>;
   isGroup: boolean;
+  unseenMessages: number;
+  lastMessage: any;
 }
 /**
  * The `chat` component provides a user interface for interacting with contacts and chat rooms within an organization.
@@ -105,9 +107,29 @@ export default function chat(): JSX.Element {
     },
   });
 
+  const [markChatMessagesAsRead] = useMutation(MARK_CHAT_MESSAGES_AS_READ, {
+    variables: {
+      chatId: selectedContact,
+      userId: userId,
+    },
+  });
+
+  useEffect(() => {
+    markChatMessagesAsRead().then(() => {
+      chatsListRefetch({ id: userId });
+    });
+  }, [selectedContact]);
+
   React.useEffect(() => {
-    if (chatsListData) {
-      setChats(chatsListData.chatsByUserId);
+    if (chatsListData && chatsListData?.chatsByUserId.length) {
+      const chatList = chatsListData.chatsByUserId.map((chat: any) => {
+        const parsedChat = {
+          ...chat,
+          unseenMessagesByUsers: JSON.parse(chat.unseenMessagesByUsers),
+        };
+        return parsedChat;
+      });
+      setChats(chatList);
     }
   }, [chatsListData]);
 
@@ -212,6 +234,10 @@ export default function chat(): JSX.Element {
                         setSelectedContact,
                         selectedContact,
                         isGroup: chat.isGroup,
+                        unseenMessages: chat.unseenMessagesByUsers[userId],
+                        lastMessage:
+                          chat.messages[chat.messages.length - 1]
+                            ?.messageContent,
                       };
                       return (
                         <ContactCard

@@ -5,9 +5,10 @@ import { Button, Dropdown, Form, InputGroup } from 'react-bootstrap';
 import styles from './ChatRoom.module.css';
 import PermContactCalendarIcon from '@mui/icons-material/PermContactCalendar';
 import { useTranslation } from 'react-i18next';
-import { CHAT_BY_ID } from 'GraphQl/Queries/PlugInQueries';
+import { CHAT_BY_ID, CHATS_LIST } from 'GraphQl/Queries/PlugInQueries';
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import {
+  MARK_CHAT_MESSAGES_AS_READ,
   MESSAGE_SENT_TO_CHAT,
   SEND_MESSAGE_TO_CHAT,
 } from 'GraphQl/Mutations/OrganizationMutations';
@@ -115,6 +116,14 @@ export default function chatRoom(props: InterfaceChatRoomProps): JSX.Element {
       chatId: props.selectedContact,
       replyTo: replyToDirectMessage?._id,
       messageContent: newMessage,
+      type: 'STRING',
+    },
+  });
+
+  const [markChatMessagesAsRead] = useMutation(MARK_CHAT_MESSAGES_AS_READ, {
+    variables: {
+      chatId: props.selectedContact,
+      userId: userId,
     },
   });
 
@@ -124,8 +133,17 @@ export default function chatRoom(props: InterfaceChatRoomProps): JSX.Element {
     },
   });
 
+  const { refetch: chatListRefetch } = useQuery(CHATS_LIST, {
+    variables: {
+      id: userId,
+    },
+  });
+
   useEffect(() => {
     chatRefetch();
+    markChatMessagesAsRead().then(() => {
+      chatListRefetch();
+    });
   }, [props.selectedContact]);
 
   useEffect(() => {
@@ -158,13 +176,15 @@ export default function chatRoom(props: InterfaceChatRoomProps): JSX.Element {
     variables: {
       userId: userId,
     },
-    onData: (messageSubscriptionData) => {
+    onData: async (messageSubscriptionData) => {
       if (
         messageSubscriptionData?.data.data.messageSentToChat &&
         messageSubscriptionData?.data.data.messageSentToChat
           .chatMessageBelongsTo['_id'] == props.selectedContact
       ) {
+        await markChatMessagesAsRead();
         chatRefetch();
+        chatListRefetch();
       } else {
         chatRefetch({
           id: messageSubscriptionData?.data.data.messageSentToChat
@@ -173,7 +193,6 @@ export default function chatRoom(props: InterfaceChatRoomProps): JSX.Element {
       }
     },
   });
-
   useEffect(() => {
     document
       .getElementById('chat-area')
@@ -294,7 +313,7 @@ export default function chatRoom(props: InterfaceChatRoomProps): JSX.Element {
                                   }}
                                   data-testid="replyBtn"
                                 >
-                                  Reply
+                                  {t('reply')}
                                 </Dropdown.Item>
                               </Dropdown.Menu>
                             </Dropdown>
