@@ -71,6 +71,7 @@ function organizationEvents(): JSX.Element {
 
   const [publicchecked, setPublicChecked] = React.useState(true);
   const [registrablechecked, setRegistrableChecked] = React.useState(false);
+  const [createChatCheck, setCreateChatCheck] = React.useState(false);
 
   const [recurrenceRuleState, setRecurrenceRuleState] =
     useState<InterfaceRecurrenceRuleState>({
@@ -285,6 +286,7 @@ function organizationEvents(): JSX.Element {
           <Button
             variant="danger"
             onClick={hideCreateEventModal}
+            className={styles.closeButton}
             data-testid="createEventModalCloseBtn"
           >
             <i className="fa fa-times"></i>
@@ -475,6 +477,19 @@ function organizationEvents(): JSX.Element {
                 />
               </div>
             </div>
+            <div>
+              <div className={styles.dispflex}>
+                <label htmlFor="createChat">{t('createChat')}?</label>
+                <Form.Switch
+                  className="me-4"
+                  id="chat"
+                  type="checkbox"
+                  data-testid="createChat"
+                  checked={createChatCheck}
+                  onChange={(): void => setCreateChatCheck(!createChatCheck)}
+                />
+              </div>
+            </div>
 
             {/* Recurrence Options */}
             {recurringchecked && (
@@ -490,7 +505,7 @@ function organizationEvents(): JSX.Element {
 
             <Button
               type="submit"
-              className={styles.greenregbtn}
+              className={styles.createButton}
               value="createevent"
               data-testid="createEventBtn"
             >

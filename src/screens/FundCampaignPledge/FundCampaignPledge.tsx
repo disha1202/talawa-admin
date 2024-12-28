@@ -9,7 +9,7 @@ import { Button, Dropdown, Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useParams } from 'react-router-dom';
 import { currencySymbols } from 'utils/currency';
-import styles from './FundCampaignPledge.module.css';
+import styles from '../../style/app.module.css';
 import PledgeDeleteModal from './PledgeDeleteModal';
 import PledgeModal from './PledgeModal';
 import { Breadcrumbs, Link, Stack, Typography } from '@mui/material';
@@ -18,7 +18,7 @@ import Avatar from 'components/Avatar/Avatar';
 import type { GridCellParams, GridColDef } from '@mui/x-data-grid';
 import type {
   InterfacePledgeInfo,
-  InterfacePledger,
+  InterfaceUserInfo,
   InterfaceQueryFundCampaignsPledges,
 } from 'utils/interfaces';
 import ProgressBar from 'react-bootstrap/ProgressBar';
@@ -84,7 +84,7 @@ const fundCampaignPledge = (): JSX.Element => {
   });
 
   const [anchor, setAnchor] = useState<null | HTMLElement>(null);
-  const [extraUsers, setExtraUsers] = useState<InterfacePledger[]>([]);
+  const [extraUsers, setExtraUsers] = useState<InterfaceUserInfo[]>([]);
   const [progressIndicator, setProgressIndicator] = useState<
     'raised' | 'pledged'
   >('pledged');
@@ -189,7 +189,7 @@ const fundCampaignPledge = (): JSX.Element => {
 
   const handleClick = (
     event: React.MouseEvent<HTMLElement>,
-    users: InterfacePledger[],
+    users: InterfaceUserInfo[],
   ): void => {
     setExtraUsers(users);
     setAnchor(anchor ? null : event.currentTarget);
@@ -226,21 +226,21 @@ const fundCampaignPledge = (): JSX.Element => {
           <div className="d-flex flex-wrap gap-1" style={{ maxHeight: 120 }}>
             {params.row.users
               .slice(0, 2)
-              .map((user: InterfacePledger, index: number) => (
+              .map((user: InterfaceUserInfo, index: number) => (
                 <div className={styles.pledgerContainer} key={index}>
                   {user.image ? (
                     <img
                       src={user.image}
                       alt="pledge"
                       data-testid={`image${index + 1}`}
-                      className={styles.TableImage}
+                      className={styles.TableImagePledge}
                     />
                   ) : (
                     <div className={styles.avatarContainer}>
                       <Avatar
                         key={user._id + '1'}
-                        containerStyle={styles.imageContainer}
-                        avatarStyle={styles.TableImage}
+                        containerStyle={styles.imageContainerPledge}
+                        avatarStyle={styles.TableImagePledge}
                         name={user.firstName + ' ' + user.lastName}
                         alt={user.firstName + ' ' + user.lastName}
                       />
@@ -425,14 +425,14 @@ const fundCampaignPledge = (): JSX.Element => {
             >
               <input
                 type="radio"
-                className={`btn-check ${styles.toggleBtn}`}
+                className={`btn-check ${styles.toggleBtnPledge}`}
                 name="btnradio"
                 id="pledgedRadio"
                 checked={progressIndicator === 'pledged'}
                 onChange={() => setProgressIndicator('pledged')}
               />
               <label
-                className={`btn btn-outline-primary ${styles.toggleBtn}`}
+                className={`btn btn-outline-primary ${styles.toggleBtnPledge}`}
                 htmlFor="pledgedRadio"
               >
                 {t('pledgedAmount')}
@@ -447,7 +447,7 @@ const fundCampaignPledge = (): JSX.Element => {
                 checked={progressIndicator === 'raised'}
               />
               <label
-                className={`btn btn-outline-primary ${styles.toggleBtn}`}
+                className={`btn btn-outline-primary ${styles.toggleBtnPledge}`}
                 htmlFor="raisedRadio"
               >
                 {t('raisedAmount')}
@@ -470,14 +470,14 @@ const fundCampaignPledge = (): JSX.Element => {
           </div>
         </div>
       </div>
-      <div className={`${styles.btnsContainer} gap-4 flex-wrap`}>
-        <div className={`${styles.input} mb-1`}>
+      <div className={`${styles.btnsContainerPledge} gap-4 flex-wrap`}>
+        <div className={`${styles.inputPledge} mb-1`}>
           <Form.Control
             type="name"
             placeholder={t('searchPledger')}
             autoComplete="off"
             required
-            className={styles.inputField}
+            className={styles.inputFieldPledge}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             data-testid="searchPledger"
@@ -557,7 +557,7 @@ const fundCampaignPledge = (): JSX.Element => {
           ),
         }}
         sx={dataGridStyle}
-        getRowClassName={() => `${styles.rowBackground}`}
+        getRowClassName={() => `${styles.rowBackgroundPledge}`}
         autoHeight
         rowHeight={65}
         rows={pledges.map((pledge) => ({
@@ -596,7 +596,7 @@ const fundCampaignPledge = (): JSX.Element => {
         disablePortal
         className={`${styles.popup} ${extraUsers.length > 4 ? styles.popupExtra : ''}`}
       >
-        {extraUsers.map((user: InterfacePledger, index: number) => (
+        {extraUsers.map((user: InterfaceUserInfo, index: number) => (
           <div
             className={styles.pledgerContainer}
             key={index}
@@ -607,14 +607,14 @@ const fundCampaignPledge = (): JSX.Element => {
                 src={user.image}
                 alt="pledger"
                 data-testid={`extraImage${index + 1}`}
-                className={styles.TableImage}
+                className={styles.TableImagePledge}
               />
             ) : (
               <div className={styles.avatarContainer}>
                 <Avatar
                   key={user._id + '1'}
-                  containerStyle={styles.imageContainer}
-                  avatarStyle={styles.TableImage}
+                  containerStyle={styles.imageContainerPledge}
+                  avatarStyle={styles.TableImagePledge}
                   name={user.firstName + ' ' + user.lastName}
                   alt={user.firstName + ' ' + user.lastName}
                   dataTestId={`extraAvatar${index + 1}`}

@@ -50,40 +50,12 @@ export const REMOVE_SAMPLE_ORGANIZATION_MUTATION = gql`
 `;
 
 /**
- * GraphQL mutation to create a direct chat between users in an organization.
+ * GraphQL mutation to create a chat between users in an organization.
  *
  * @param userIds - An array of user IDs participating in the direct chat.
  * @param organizationId - The ID of the organization where the direct chat is created.
  * @returns The created direct chat object.
  */
-
-export const CREATE_GROUP_CHAT = gql`
-  mutation createGroupChat(
-    $userIds: [ID!]!
-    $organizationId: ID!
-    $title: String!
-  ) {
-    createGroupChat(
-      data: {
-        userIds: $userIds
-        organizationId: $organizationId
-        title: $title
-      }
-    ) {
-      _id
-    }
-  }
-`;
-
-export const CREATE_DIRECT_CHAT = gql`
-  mutation createDirectChat($userIds: [ID!]!, $organizationId: ID) {
-    createDirectChat(
-      data: { userIds: $userIds, organizationId: $organizationId }
-    ) {
-      _id
-    }
-  }
-`;
 
 export const CREATE_CHAT = gql`
   mutation createChat(
@@ -91,6 +63,7 @@ export const CREATE_CHAT = gql`
     $organizationId: ID
     $isGroup: Boolean!
     $name: String
+    $image: String
   ) {
     createChat(
       data: {
@@ -98,9 +71,54 @@ export const CREATE_CHAT = gql`
         organizationId: $organizationId
         isGroup: $isGroup
         name: $name
+        image: $image
       }
     ) {
       _id
+    }
+  }
+`;
+
+export const ADD_USER_TO_GROUP_CHAT = gql`
+  mutation addUserToGroupChat($userId: ID!, $chatId: ID!) {
+    addUserToGroupChat(userId: $userId, chatId: $chatId) {
+      _id
+    }
+  }
+`;
+
+export const MARK_CHAT_MESSAGES_AS_READ = gql`
+  mutation markChatMessagesAsRead($chatId: ID!, $userId: ID!) {
+    markChatMessagesAsRead(chatId: $chatId, userId: $userId) {
+      _id
+    }
+  }
+`;
+
+export const UPDATE_CHAT = gql`
+  mutation updateChat($input: UpdateChatInput!) {
+    updateChat(input: $input) {
+      _id
+    }
+  }
+`;
+
+export const EDIT_CHAT_MESSAGE = gql`
+  mutation updateChatMessage(
+    $messageId: ID!
+    $messageContent: String!
+    $chatId: ID!
+  ) {
+    updateChatMessage(
+      input: {
+        messageId: $messageId
+        messageContent: $messageContent
+        chatId: $chatId
+      }
+    ) {
+      _id
+      messageContent
+      updatedAt
     }
   }
 `;
@@ -109,16 +127,19 @@ export const SEND_MESSAGE_TO_CHAT = gql`
   mutation sendMessageToChat(
     $chatId: ID!
     $replyTo: ID
-    $messageContent: String!
+    $media: String
+    $messageContent: String
   ) {
     sendMessageToChat(
       chatId: $chatId
       replyTo: $replyTo
       messageContent: $messageContent
+      media: $media
     ) {
       _id
       createdAt
       messageContent
+      media
       replyTo {
         _id
         createdAt
@@ -134,24 +155,6 @@ export const SEND_MESSAGE_TO_CHAT = gql`
         _id
         firstName
         lastName
-      }
-      updatedAt
-    }
-  }
-`;
-
-export const CREATE_MESSAGE_CHAT = gql`
-  mutation createMessageChat($receiver: ID!, $messageContent: String!) {
-    createMessageChat(data: { receiver: $receiver, message: $messageContent }) {
-      _id
-      createdAt
-      message
-      languageBarrier
-      receiver {
-        _id
-      }
-      sender {
-        _id
       }
       updatedAt
     }

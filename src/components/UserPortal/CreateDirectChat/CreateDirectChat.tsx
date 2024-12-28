@@ -5,10 +5,7 @@ import styles from './CreateDirectChat.module.css';
 import type { ApolloQueryResult } from '@apollo/client';
 import { useMutation, useQuery } from '@apollo/client';
 import useLocalStorage from 'utils/useLocalstorage';
-import {
-  CREATE_CHAT,
-  CREATE_DIRECT_CHAT,
-} from 'GraphQl/Mutations/OrganizationMutations';
+import { CREATE_CHAT } from 'GraphQl/Mutations/OrganizationMutations';
 import Table from '@mui/material/Table';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
@@ -19,8 +16,8 @@ import type { InterfaceQueryUserListItem } from 'utils/interfaces';
 import { USERS_CONNECTION_LIST } from 'GraphQl/Queries/Queries';
 import Loader from 'components/Loader/Loader';
 import { Search } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface InterfaceCreateDirectChatProps {
   toggleCreateDirectChatModal: () => void;
@@ -28,10 +25,10 @@ interface InterfaceCreateDirectChatProps {
   chatsListRefetch: (
     variables?:
       | Partial<{
-          id: any;
+          id: string;
         }>
       | undefined,
-  ) => Promise<ApolloQueryResult<any>>;
+  ) => Promise<ApolloQueryResult<unknown>>;
 }
 
 /**
@@ -68,7 +65,6 @@ export default function createDirectChatModal({
   const { t } = useTranslation('translation', {
     keyPrefix: 'userChat',
   });
-
   const { orgId: organizationId } = useParams();
 
   const userId: string | null = getItem('userId');
@@ -195,7 +191,7 @@ export default function createDirectChatModal({
                                 }}
                                 data-testid="addBtn"
                               >
-                                Add
+                                {t('add')}
                               </Button>
                             </StyledTableCell>
                           </StyledTableRow>

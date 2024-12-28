@@ -99,14 +99,59 @@ export const ORGANIZATION_EVENTS_CONNECTION = gql`
   }
 `;
 
-/**
- * GraphQL query to retrieve a list of direct chats based on user ID.
- *
- * @param id - The ID of the user for which direct chats are being retrieved.
- * @returns The list of direct chats associated with the user, including details such as ID, creator, messages, organization, and participating users.
- */
+export const USER_EVENTS_VOLUNTEER = gql`
+  query UserEventsVolunteer(
+    $organization_id: ID!
+    $title_contains: String
+    $location_contains: String
+    $first: Int
+    $skip: Int
+    $upcomingOnly: Boolean
+  ) {
+    eventsByOrganizationConnection(
+      where: {
+        organization_id: $organization_id
+        title_contains: $title_contains
+        location_contains: $location_contains
+      }
+      first: $first
+      skip: $skip
+      upcomingOnly: $upcomingOnly
+    ) {
+      _id
+      title
+      startDate
+      endDate
+      location
+      startTime
+      endTime
+      allDay
+      recurring
+      volunteerGroups {
+        _id
+        name
+        volunteersRequired
+        description
+        volunteers {
+          _id
+        }
+      }
+      volunteers {
+        _id
+        user {
+          _id
+        }
+      }
+    }
+  }
+`;
 
-// directChatsMessagesByChatID(id: ID!): [DirectChatMessage]
+/**
+ * GraphQL query to retrieve a list of chats based on user ID.
+ *
+ * @param id - The ID of the user for which chats are being retrieved.
+ * @returns The list of chats associated with the user, including details such as ID, creator, messages, organization, and participating users.
+ */
 
 export const CHAT_BY_ID = gql`
   query chatById($id: ID!) {
@@ -122,6 +167,7 @@ export const CHAT_BY_ID = gql`
         _id
         createdAt
         messageContent
+        media
         replyTo {
           _id
           createdAt
@@ -147,18 +193,130 @@ export const CHAT_BY_ID = gql`
         firstName
         lastName
         email
+        image
       }
+      admins {
+        _id
+        firstName
+        lastName
+        email
+        image
+      }
+      unseenMessagesByUsers
+    }
+  }
+`;
+
+export const GROUP_CHAT_LIST = gql`
+  query groupChatsByUserId {
+    getGroupChatsByUserId {
+      _id
+      isGroup
+      name
+      creator {
+        _id
+        firstName
+        lastName
+        email
+      }
+      messages {
+        _id
+        createdAt
+        messageContent
+        media
+        sender {
+          _id
+          firstName
+          lastName
+          email
+        }
+      }
+      organization {
+        _id
+        name
+      }
+      users {
+        _id
+        firstName
+        lastName
+        email
+        image
+      }
+      admins {
+        _id
+        firstName
+        lastName
+        email
+        image
+      }
+      unseenMessagesByUsers
+    }
+  }
+`;
+
+export const UNREAD_CHAT_LIST = gql`
+  query unreadChatList {
+    getUnreadChatsByUserId {
+      _id
+      isGroup
+      name
+      creator {
+        _id
+        firstName
+        lastName
+        email
+      }
+      messages {
+        _id
+        createdAt
+        messageContent
+        media
+        sender {
+          _id
+          firstName
+          lastName
+          email
+        }
+      }
+      organization {
+        _id
+        name
+      }
+      users {
+        _id
+        firstName
+        lastName
+        email
+        image
+      }
+      admins {
+        _id
+        firstName
+        lastName
+        email
+        image
+      }
+      unseenMessagesByUsers
     }
   }
 `;
 
 export const CHATS_LIST = gql`
-  query ChatsByUserId($id: ID!) {
-    chatsByUserId(id: $id) {
+  query ChatsByUserId($id: ID!, $searchString: String) {
+    chatsByUserId(
+      id: $id
+      where: {
+        name_contains: $searchString
+        user: {
+          firstName_contains: $searchString
+          lastName_contains: $searchString
+        }
+      }
+    ) {
       _id
       isGroup
       name
-
+      image
       creator {
         _id
         firstName
@@ -187,10 +345,17 @@ export const CHATS_LIST = gql`
         email
         image
       }
+      admins {
+        _id
+        firstName
+        lastName
+        email
+        image
+      }
+      unseenMessagesByUsers
     }
   }
 `;
-
 /**
  * GraphQL query to check if an organization is a sample organization.
  *
